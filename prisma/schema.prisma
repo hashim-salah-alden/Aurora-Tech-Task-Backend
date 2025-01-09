@@ -1,0 +1,61 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Doctor {
+  id           String           @id @default(uuid())
+  firstName    String
+  lastName     String
+  email        String           @unique
+  password     String
+  phone        String           @unique
+  schedules    DoctorSchedule[]
+  reservations Reservation[]
+  doctorImage  String?
+}
+
+model Branch {
+  id           String           @id @default(uuid())
+  name         String
+  location     String?
+  schedules    DoctorSchedule[]
+  reservations Reservation[]
+}
+
+model DoctorSchedule {
+  id              String   @id @default(uuid())
+  doctor          Doctor   @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  doctorId        String
+  branch          Branch   @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  branchId        String
+  startingTime    String
+  endingTime      String
+  workingWeekdays String[]
+}
+
+model SessionType {
+  id           String        @id @default(uuid())
+  name         String
+  price        Float
+  reservations Reservation[]
+}
+
+model Reservation {
+  id            String      @id @default(uuid())
+  sessionType   SessionType @relation(fields: [sessionTypeId], references: [id], onDelete: Cascade)
+  sessionTypeId String
+  date          DateTime
+  branch        Branch      @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  branchId      String
+  time          DateTime
+  doctor        Doctor      @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  doctorId      String
+  // customerName  String
+  // customerContact String
+}
